@@ -222,10 +222,12 @@ export default function CategoryFilters({
   //   setCategorySystem(defaultCategories)
   // }
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+
   // Save categories to backend
   const saveCategories = async (updatedCategories) => {
     try {
-      await fetch("/api/categories", {
+      await fetch(`${API_BASE_URL}/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedCategories),
@@ -256,7 +258,7 @@ export default function CategoryFilters({
 
     console.log("Sending category:", newCategoryForm);
 
-    await fetch("/api/categories", {
+    await fetch(`${API_BASE_URL}/categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newCategoryForm)

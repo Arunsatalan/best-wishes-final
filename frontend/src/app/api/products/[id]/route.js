@@ -1,8 +1,10 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL_2 || 'https://best-wishes-final-production-e20b.up.railway.app';
+
 export async function GET(request, context) {
   const params = await context.params;
   const { id } = params;
   try {
-    const res = await fetch(`http://localhost:5000/api/products/${id}`);
+    const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
     const data = await res.json();
     return Response.json(data.data || data);
   } catch (error) {
@@ -16,7 +18,7 @@ export async function PUT(request, { params }) {
     const { id } = params;
     const productData = await request.json();
 
-    const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -36,7 +38,7 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = params;
 
-    const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
       method: 'DELETE',
     });
 

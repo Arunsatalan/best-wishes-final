@@ -10,7 +10,8 @@ export const getCategories = createAsyncThunk(
   'categories/getCategories',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/categories');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+      const response = await fetch(`${apiUrl}/categories`);
       const data = await response.json();
       
       if (!response.ok) {

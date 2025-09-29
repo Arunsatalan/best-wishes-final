@@ -1,7 +1,9 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL_2 || 'https://best-wishes-final-production-e20b.up.railway.app';
+
 export async function POST(request) {
   try {
     const body = await request.json();
-    const res = await fetch('http://localhost:5000/api/collaborative-gift', {
+    const res = await fetch(`${API_BASE_URL}/api/collaborative-gift`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
