@@ -5,8 +5,8 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import Image from 'next/image';
 
-// This is now a Next.js page that demonstrates the FeedbackModal component
-export default function FeedbackModalPage() {
+// This is a Next.js page component
+export default function FeedbackModalDemoPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Sample data for demonstration
@@ -25,9 +25,10 @@ export default function FeedbackModalPage() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-4">Feedback Modal Demo</h1>
+        <p className="text-gray-600 mb-6">This page demonstrates the FeedbackModal component.</p>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
         >
           Open Feedback Modal
         </button>
@@ -47,14 +48,16 @@ export default function FeedbackModalPage() {
   );
 }
 
-// The actual FeedbackModal component
+// The FeedbackModal component
 const FeedbackModal = ({ 
-  isOpen, 
-  onClose, 
-  product, 
-  order,
-  onFeedbackSubmitted 
+  isOpen = false, 
+  onClose = () => {}, 
+  product = {}, 
+  order = {},
+  onFeedbackSubmitted = () => {} 
 }) => {
+  // Early return if modal is not open
+  if (!isOpen) return null;
   const [formData, setFormData] = useState({
     rating: 0,
     title: '',
