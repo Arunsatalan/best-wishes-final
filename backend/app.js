@@ -29,6 +29,7 @@ const orderSummaryRoutes = require('./routes/orderSummaryRoutes');
 
 const reportRoutes = require('./routes/reportRoutes');
 const aiChatbotRoutes = require('./routes/aiChatbotRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 
 
 
@@ -99,6 +100,7 @@ app.use('/api/order-summary', orderSummaryRoutes);
 
 app.use('/api', reportRoutes);
 app.use('/api/chatbot', aiChatbotRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 
 

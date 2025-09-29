@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/navBar/page';
 import Footer from '../../components/footer/page';
+import FeedbackModal from '../../components/FeedbackModal/page';
 import { MdHistory } from "react-icons/md";
 import Image from 'next/image';
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -21,6 +22,12 @@ function Page() {
     const [deleteLoading, setDeleteLoading] = useState(null);
     const [viewOrder, setViewOrder] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(null);
+    const [feedbackModal, setFeedbackModal] = useState({ 
+        isOpen: false, 
+        product: null, 
+        order: null 
+    });
+    const [feedbackStatuses, setFeedbackStatuses] = useState({});
 
     useEffect(() => {
         if (!user) {
@@ -29,6 +36,12 @@ function Page() {
         }
         fetchOrders();
     }, [user]);
+
+    useEffect(() => {
+        if (orders.length > 0) {
+            checkFeedbackStatuses();
+        }
+    }, [orders]);
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -40,6 +53,39 @@ function Page() {
             setError(err.response?.data?.message || 'Failed to fetch order history');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const checkFeedbackStatuses = async () => {
+        try {
+            const statusPromises = [];
+            const statusKeys = [];
+
+            orders.forEach(order => {
+                order.items.forEach(item => {
+                    if (item.product && item.product._id) {
+                        const key = `${item.product._id}-${order._id}`;
+                        statusKeys.push(key);
+                        statusPromises.push(
+                            axios.get(
+                                `${process.env.NEXT_PUBLIC_API_URL}/feedback/eligibility/${item.product._id}/${order._id}`,
+                                { withCredentials: true }
+                            ).catch(() => ({ data: { canGiveFeedback: false, reason: 'Error checking status' } }))
+                        );
+                    }
+                });
+            });
+
+            const responses = await Promise.all(statusPromises);
+            const statuses = {};
+            
+            statusKeys.forEach((key, index) => {
+                statuses[key] = responses[index].data;
+            });
+
+            setFeedbackStatuses(statuses);
+        } catch (error) {
+            console.error('Error checking feedback statuses:', error);
         }
     };
 
@@ -61,6 +107,86 @@ function Page() {
 
     const handleViewOrder = (order) => {
         setViewOrder(order);
+    };
+
+    const handleFeedbackClick = (product, order) => {
+        const key = `${product._id}-${order._id}`;
+        const status = feedbackStatuses[key];
+
+        if (!status) {
+            toast.error('Please wait while we check feedback eligibility...');
+            return;
+        }
+
+        if (!status.canGiveFeedback) {
+            if (status.existingFeedback) {
+                toast.info('You have already provided feedback for this product');
+            } else {
+                toast.error(status.reason || 'Cannot provide feedback for this product');
+            }
+            return;
+        }
+
+        setFeedbackModal({
+            isOpen: true,
+            product,
+            order
+        });
+    };
+
+    const handleFeedbackSubmitted = (newFeedback) => {
+        // Update feedback status after successful submission
+        const key = `${newFeedback.product}-${newFeedback.order}`;
+        setFeedbackStatuses(prev => ({
+            ...prev,
+            [key]: {
+                canGiveFeedback: false,
+                reason: 'Feedback already provided',
+                existingFeedback: newFeedback
+            }
+        }));
+    };
+
+    const closeFeedbackModal = () => {
+        setFeedbackModal({
+            isOpen: false,
+            product: null,
+            order: null
+        });
+    };
+
+    // Get feedback button properties for a product
+    const getFeedbackButtonProps = (product, order) => {
+        const key = `${product._id}-${order._id}`;
+        const status = feedbackStatuses[key];
+
+        if (!status) {
+            return {
+                text: 'Loading...',
+                className: 'border-2 border-gray-300 text-sm md:text-[16px] rounded bg-gray-300 text-gray-500 py-1 px-4 cursor-not-allowed',
+                disabled: true
+            };
+        }
+
+        if (status.canGiveFeedback) {
+            return {
+                text: 'Give Feedback',
+                className: 'border-2 border-[#822BE2] text-sm md:text-[16px] rounded bg-[#822BE2] hover:bg-purple-200 hover:border-[#822BE2] hover:text-[#822BE2] hover:cursor-pointer text-white py-1 px-4 transition-colors',
+                disabled: false
+            };
+        } else if (status.existingFeedback) {
+            return {
+                text: 'Feedback Given',
+                className: 'border-2 border-green-500 text-sm md:text-[16px] rounded bg-green-500 text-white py-1 px-4 cursor-default',
+                disabled: true
+            };
+        } else {
+            return {
+                text: 'Not Eligible',
+                className: 'border-2 border-gray-400 text-sm md:text-[16px] rounded bg-gray-400 text-white py-1 px-4 cursor-not-allowed',
+                disabled: true
+            };
+        }
     };
 
     if (!user) {
@@ -153,7 +279,21 @@ function Page() {
                                     >
                                         <RiDeleteBin6Line />
                                     </button>
-                                    <button className='border-2 border-[#822BE2] text-sm md:text-[16px] rounded bg-[#822BE2] hover:bg-purple-200 hover:border-[#822BE2] hover:text-[#822BE2] hover:cursor-pointer text-white py-1 px-4 transition-colors'>Feedback</button>
+                                    {/* Feedback button - only show for single item orders for simplicity */}
+                                    {order.items.length === 1 && order.items[0].product ? (() => {
+                                        const buttonProps = getFeedbackButtonProps(order.items[0].product, order);
+                                        return (
+                                            <button 
+                                                onClick={() => !buttonProps.disabled && handleFeedbackClick(order.items[0].product, order)}
+                                                disabled={buttonProps.disabled}
+                                                className={buttonProps.className}
+                                            >
+                                                {buttonProps.text}
+                                            </button>
+                                        );
+                                    })() : (
+                                        <span className='text-sm text-gray-500'>Multiple Items</span>
+                                    )}
                                 </div>
                             </div>
                             <hr className='mt-4 w-full md:w-[50%] mx-auto text-[#D9D9D9] pb-5 md:ml-[25%]' />
@@ -281,6 +421,15 @@ function Page() {
                     </div>
                 </div>
             )}
+
+            {/* Feedback Modal */}
+            <FeedbackModal
+                isOpen={feedbackModal.isOpen}
+                onClose={closeFeedbackModal}
+                product={feedbackModal.product}
+                order={feedbackModal.order}
+                onFeedbackSubmitted={handleFeedbackSubmitted}
+            />
 
             <Footer />
             <Toaster position="top-center" richColors closeButton />

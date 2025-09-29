@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
+import { AiFillStar, AiOutlineStar, AiTwotoneStar } from 'react-icons/ai';
 import { addToCart } from "../slices/cartSlice";
 import { addToWishlist } from "../slices/wishlistSlice";
 import { toast } from 'sonner';

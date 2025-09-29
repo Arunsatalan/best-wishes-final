@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Footer from "../../components/footer/page"
 import ProductDetails from "../../components/ProductDetails"
+import ProductReviews from "../../components/ProductReviews/page"
 import ImageMagnifier from "../../components/ImageMagnifier"
 import { useRouter } from 'next/navigation';
 
@@ -352,6 +353,7 @@ function ProductDetailPage() {
         </div>
         <div className='flex-col items-start mt-[40px] w-full'>
           <ProductDetails product={product} />
+          <ProductReviews productId={product._id} />
         </div>
 
         {/* all Products */}

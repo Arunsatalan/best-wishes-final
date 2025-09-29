@@ -193,7 +193,7 @@ function page() {
                                             </div>
                                             <div className='text-right'>
                                                 <span className='text-sm text-gray-700'>Subtotal:&nbsp;</span>
-                                                <span className='font-semibold'>US {(Number(ci.price || 0) * Number(ci.quantity || 0)).toFixed(2)}</span>
+                                                <span className='font-semibold'>UK £{(Number(ci.price || 0) * Number(ci.quantity || 0)).toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>

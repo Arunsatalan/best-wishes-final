@@ -40,15 +40,15 @@ const SurpriseGift = ({ onClose, onConfirm, itemsCount = 1, deliveryFee = 0, dis
             </div>
             <div className='flex justify-between items-center bg-[#FCFCFD] border border-[#F3F4F6] rounded-[8px] px-[10px] py-[8px]'>
               <p className='text-[#6B7280]'>Delivery Fee</p>
-              <p className='text-[#111827] font-semibold'>US {Number(deliveryFee).toFixed(2)}$</p>
+              <p className='text-[#111827] font-semibold'>US {Number(deliveryFee).toFixed(2)}£</p>
             </div>
             <div className='flex justify-between items-center bg-[#FCFCFD] border border-[#F3F4F6] rounded-[8px] px-[10px] py-[8px]'>
               <p className='text-[#6B7280]'>Discounts</p>
-              <p className='text-green-600 font-semibold'>US {Number(discounts).toFixed(2)}$</p>
+              <p className='text-green-600 font-semibold'>US {Number(discounts).toFixed(2)}£</p>
             </div>
             <div className='flex justify-between items-center bg-[#FCFCFD] border border-[#F3F4F6] rounded-[8px] px-[10px] py-[8px]'>
               <p className='text-[#6B7280]'>Estimate Total</p>
-              <p className='text-[#111827] font-semibold'>US {Number(estimateTotal).toFixed(2)}$</p>
+              <p className='text-[#111827] font-semibold'>US {Number(estimateTotal).toFixed(2)}£</p>
             </div>
           </div>
           <div className='flex items-start text-[14px] gap-[10px]'>
