@@ -36,13 +36,34 @@ const app = express();
 
 connectDB();
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001','https://best-wishes-final.vercel.app'];
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'http://localhost:3001',
+  'https://best-wishes-final.vercel.app'
+];
+
+// Add additional origins from environment variables
 if (process.env.FRONT_URL) {
   allowedOrigins.push(process.env.FRONT_URL);
 }
+if (process.env.CORS_ORIGIN) {
+  allowedOrigins.push(...process.env.CORS_ORIGIN.split(','));
+}
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin is in allowedOrigins or matches patterns
+    if (allowedOrigins.includes(origin) || 
+        /\.vercel\.app$/.test(origin) || 
+        /\.railway\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']

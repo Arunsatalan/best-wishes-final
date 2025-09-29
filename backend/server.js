@@ -1,7 +1,7 @@
 const app = require("./app");
 const http = require('http');
 const socketIo = require('socket.io');
-const PORT = process.env.PORT || 5000 || 4000; 
+const PORT = process.env.PORT || 5000; 
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -9,7 +9,13 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = socketIo(server, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'https://best-wishes-final.vercel.app'],
+    origin: [
+      'http://localhost:3000', 
+      'http://localhost:3001', 
+      'https://best-wishes-final.vercel.app',
+      /\.vercel\.app$/,
+      /\.railway\.app$/
+    ],
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -44,8 +50,13 @@ io.on('connection', (socket) => {
 app.set('io', io);
 app.set('userSockets', userSockets);
 
+// Add health check endpoint
+app.get('/health', (req, res) => {
+  res.send('ok');
+});
+
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 app.get("/", (req, res) => {
