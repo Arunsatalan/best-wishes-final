@@ -33,6 +33,12 @@ function Page() {
       );
 
       const userData = res.data.user;
+      const token = res.data.token; // Get the token from response
+
+      // Store token in localStorage for cross-domain authentication
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      }
 
       dispatch(userLogin({
         user: userData,

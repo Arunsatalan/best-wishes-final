@@ -18,7 +18,15 @@ export const fetchUserProfile = () => async (dispatch) => {
   try {
     console.log('Fetching user profile...');
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
-    const response = await axios.get(`${API_URL}/myprofile`, { withCredentials: true });
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('auth_token');
+    const config = {
+      withCredentials: true,
+      ...(token && { headers: { Authorization: `Bearer ${token}` } })
+    };
+    
+    const response = await axios.get(`${API_URL}/myprofile`, config);
     
     if (response.data && response.data.user) {
 
