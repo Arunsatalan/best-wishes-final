@@ -88,15 +88,26 @@ export default function FancyCarousel() {
     dispatch(getProducts())
     dispatch(getCategories())
 
-    // Fetch categories from backend
+    // Fetch categories from backend with fallback URL
     const fetchCategories = async () => {
       try {
-        const res = await fetch(`${apiUrl}/categories`);
+        const baseUrl = apiUrl || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+        console.log('Fetching categories from:', `${baseUrl}/categories`);
+        const res = await fetch(`${baseUrl}/categories`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const data = await res.json();
+        console.log('Categories response:', data);
+        
         // If data is an array, use it directly; if wrapped in {data: []}, unwrap
-        const cats = Array.isArray(data) ? data : data.data;
-        setLocalCategories(cats || []);
+        const cats = Array.isArray(data) ? data : (data.data || []);
+        setLocalCategories(cats);
+        console.log('Local categories set:', cats);
       } catch (err) {
+        console.error('Failed to fetch categories:', err);
         setLocalCategories([]);
       }
     };
@@ -105,7 +116,8 @@ export default function FancyCarousel() {
     // Fetch hero sections from backend
     const fetchHeroSections = async () => {
       try {
-        const res = await fetch(`${apiUrl}/hero-sections/active`);
+        const baseUrl = apiUrl || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+        const res = await fetch(`${baseUrl}/hero-sections/active`);
         const data = await res.json();
         if (data.success && data.data) {
           setHeroSections(data.data);
@@ -131,7 +143,8 @@ export default function FancyCarousel() {
     // Fetch only images from HeroSection database
     const fetchHeroImages = async () => {
       try {
-        const res = await fetch(`${apiUrl}/hero-sections/active`);
+        const baseUrl = apiUrl || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+        const res = await fetch(`${baseUrl}/hero-sections/active`);
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           // Only extract image URLs
@@ -147,7 +160,8 @@ export default function FancyCarousel() {
     // Fetch active events from backend
     const fetchActiveEvents = async () => {
       try {
-        const response = await fetch(`${apiUrl}/events?isActive=true`);
+        const baseUrl = apiUrl || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+        const response = await fetch(`${baseUrl}/events?isActive=true`);
         const data = await response.json();
         if (data.events && data.events.length > 0) {
           const activeEvents = data.events.filter(event => event.isActive); // Filter active events
@@ -172,7 +186,8 @@ export default function FancyCarousel() {
     const fetchRandomAll = async () => {
       try {
         setRandomAllLoading(true);
-        const res = await fetch(`${apiUrl}/products/random?limit=12`);
+        const baseUrl = apiUrl || 'https://best-wishes-final-production-e20b.up.railway.app/api';
+        const res = await fetch(`${baseUrl}/products/random?limit=12`);
         const data = await res.json();
         if (data?.success && Array.isArray(data.data)) {
           setRandomAllProducts(data.data);
@@ -189,6 +204,7 @@ export default function FancyCarousel() {
           }
         }
       } catch (e) {
+        console.error('Failed to fetch random products:', e);
         // Fallback: local shuffle
         if (Array.isArray(allProducts) && allProducts.length > 0) {
           const shuffled = [...allProducts].sort(() => Math.random() - 0.5).slice(0, 12);
@@ -292,10 +308,16 @@ export default function FancyCarousel() {
     ],
   }
 
-  // Handle category click navigation
-  const handleCategoryClick = (categoryName) => {
-    // Navigate to showcase page with category parameter
-    router.push(`/allProducts/showcase?category=${encodeURIComponent(categoryName)}`);
+  // Handle category click navigation - improved to use category key or name
+  const handleCategoryClick = (category) => {
+    console.log('Category clicked:', category);
+    // Use category key if available, otherwise use name
+    const categoryParam = category.key || category.name;
+    if (categoryParam) {
+      router.push(`/allProducts/showcase?category=${encodeURIComponent(categoryParam)}`);
+    } else {
+      console.error('No valid category parameter found');
+    }
   };
 
   // Handle explore more functionality
@@ -303,10 +325,31 @@ export default function FancyCarousel() {
     setShowMoreCategories(!showMoreCategories);
   };
 
+  // Combine categories from multiple sources with priority: localCategories > redux categories > fallback
+  const availableCategories = (() => {
+    if (localCategories && localCategories.length > 0) {
+      console.log('Using local categories:', localCategories);
+      return localCategories;
+    }
+    if (categories && categories.length > 0) {
+      console.log('Using redux categories:', categories);
+      return categories;
+    }
+    console.log('Using fallback categories');
+    return [
+      { name: "Balloons", key: "balloon", image: "/balloon.svg" },
+      { name: "Mugs", key: "mug", image: "/mug.svg" },
+      { name: "Birthday Cards", key: "card", image: "/birthday-invitation.svg" },
+      { name: "Home & Living", key: "home-living", image: "/home.svg" },
+      { name: "Party Supplies", key: "party", image: "/party.svg" },
+      { name: "Decorations", key: "decoration", image: "/decoration.svg" },
+    ];
+  })();
+
   // Ensure unique categories
-  const uniqueCategories = categories && Array.isArray(categories) 
-    ? Array.from(new Set(categories.map(category => category.name)))
-        .map(name => categories.find(category => category.name === name))
+  const uniqueCategories = Array.isArray(availableCategories) 
+    ? Array.from(new Set(availableCategories.map(category => category.name)))
+        .map(name => availableCategories.find(category => category.name === name))
     : [];
 
   return (
@@ -369,18 +412,11 @@ export default function FancyCarousel() {
 
 
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-            {(uniqueCategories.length > 0 ? uniqueCategories.slice(0, 6) : [
-              { name: "Balloons", image: "/balloon.svg" },
-              { name: "Mugs", image: "/mug.svg" },
-              { name: "Birthday Cards", image: "/birthday-invitation.svg" },
-              { name: "Home & Living", image: "/home.svg" },
-              { name: "Party Supplies", image: "/party.svg" },
-              { name: "Decorations", image: "/decoration.svg" },
-            ]).map((category, index) => (
+            {availableCategories.slice(0, 6).map((category, index) => (
               <div 
-                key={category._id || index} 
+                key={category._id || category.key || index} 
                 className="flex flex-col items-center space-y-2 group cursor-pointer transform hover:scale-105 transition-all duration-300"
-                onClick={() => handleCategoryClick(category.name)}
+                onClick={() => handleCategoryClick(category)}
               >
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-200 overflow-hidden group-hover:border-purple-400 group-hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50">
                   <Image
@@ -401,11 +437,11 @@ export default function FancyCarousel() {
 
           {showMoreCategories && (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-4 mt-4">
-              {uniqueCategories.slice(6).map((category, index) => (
+              {availableCategories.slice(6).map((category, index) => (
                 <div 
-                  key={category._id || index} 
+                  key={category._id || category.key || index} 
                   className="flex flex-col items-center space-y-2 group cursor-pointer transform hover:scale-105 transition-all duration-300"
-                  onClick={() => handleCategoryClick(category.name)}
+                  onClick={() => handleCategoryClick(category)}
                 >
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-200 overflow-hidden group-hover:border-purple-400 group-hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-pink-50">
                     <Image
