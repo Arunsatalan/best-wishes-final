@@ -45,16 +45,17 @@ exports.registerUser = async (req, res) => {
 
     const token = generateToken(user);
 
-    // Set token in cookie
+    // Set token in cookie with cross-domain settings
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Allow cross-domain in production
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
 
     res.status(201).json({
       success: true,
+      token: token, // Also return token in response for frontend storage
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -144,16 +145,17 @@ exports.loginUser = async (req, res) => {
 
     const token = generateToken(user);
 
-    //  Set cookie
+    //  Set cookie with cross-domain settings
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Allow cross-domain in production
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(200).json({
       success: true,
+      token: token, // Also return token in response for frontend storage
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -184,6 +186,8 @@ exports.loginUser = async (req, res) => {
 exports.logoutUser = (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Match login cookie settings
     expires: new Date(0)
   });
 
