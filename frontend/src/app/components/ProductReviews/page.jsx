@@ -5,6 +5,22 @@ import { MdVerified } from 'react-icons/md';
 import axios from 'axios';
 import Image from 'next/image';
 
+// This is now a Next.js page that demonstrates the ProductReviews component
+export default function ProductReviewsPage({ searchParams }) {
+  // Get productId from URL search params or use a default
+  const productId = searchParams?.productId || 'sample-product-id';
+  
+  return (
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Product Reviews</h1>
+        <ProductReviews productId={productId} />
+      </div>
+    </div>
+  );
+}
+
+// The actual ProductReviews component
 const ProductReviews = ({ productId }) => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [ratingStats, setRatingStats] = useState({
@@ -308,4 +324,6 @@ const ProductReviews = ({ productId }) => {
   );
 };
 
-export default ProductReviews;
+// Don't export default ProductReviews since the page component is the default export
+// If you need to use ProductReviews elsewhere, you can export it as a named export:
+// export { ProductReviews };

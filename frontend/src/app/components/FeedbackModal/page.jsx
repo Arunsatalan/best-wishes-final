@@ -5,6 +5,49 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import Image from 'next/image';
 
+// This is now a Next.js page that demonstrates the FeedbackModal component
+export default function FeedbackModalPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Sample data for demonstration
+  const sampleProduct = {
+    _id: "sample-product-id",
+    name: "Sample Product",
+    images: ["/placeholder-image.jpg"],
+    price: 99.99
+  };
+  
+  const sampleOrder = {
+    _id: "sample-order-id"
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">Feedback Modal Demo</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+        >
+          Open Feedback Modal
+        </button>
+        
+        <FeedbackModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          product={sampleProduct}
+          order={sampleOrder}
+          onFeedbackSubmitted={() => {
+            setIsModalOpen(false);
+            toast.success('Feedback submitted!');
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// The actual FeedbackModal component
 const FeedbackModal = ({ 
   isOpen, 
   onClose, 
@@ -236,4 +279,6 @@ const FeedbackModal = ({
   );
 };
 
-export default FeedbackModal;
+// Don't export default FeedbackModal since the page component is the default export
+// If you need to use FeedbackModal elsewhere, you can export it as a named export:
+// export { FeedbackModal };
