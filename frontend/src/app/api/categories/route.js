@@ -1,8 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL_2 || 'https://best-wishes-final-production-e20b.up.railway.app';
+import { API_CONFIG } from '../../../utils/config';
 
 export async function GET() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/categories`);
+    const res = await fetch(`${API_CONFIG.getBaseUrl()}/api/categories`);
     const data = await res.json();
     return Response.json(data.data || data);
   } catch (error) {
@@ -15,7 +15,7 @@ export async function POST(request) {
   try {
     const categoryData = await request.json();
 
-    const res = await fetch(`${API_BASE_URL}/api/categories`, {
+    const res = await fetch(`${API_CONFIG.getBaseUrl()}/api/categories`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

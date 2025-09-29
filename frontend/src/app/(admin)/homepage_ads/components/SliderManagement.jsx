@@ -39,10 +39,12 @@ export default function SliderManagement() {
     fetchHeroSections()
   }, [])
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL_2 || 'https://best-wishes-final-production-e20b.up.railway.app';
+
   const fetchHeroSections = async () => {
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:5000/api/hero-sections', { credentials: 'include' })
+      const response = await fetch(`${API_BASE_URL}/api/hero-sections`, { credentials: 'include' })
       const data = await response.json()
       if (data.success) {
         setSlides(data.data)
@@ -82,7 +84,7 @@ export default function SliderManagement() {
     }
     try {
       setLoading(true)
-      const url = editingSlide ? `http://localhost:5000/api/hero-sections/${editingSlide._id}` : 'http://localhost:5000/api/hero-sections'
+      const url = editingSlide ? `${API_BASE_URL}/api/hero-sections/${editingSlide._id}` : `${API_BASE_URL}/api/hero-sections`
       const method = editingSlide ? 'PUT' : 'POST'
       const response = await fetch(url, {
         method,
@@ -124,7 +126,7 @@ export default function SliderManagement() {
     if (!confirm('Are you sure you want to delete this hero section?')) return
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5000/api/hero-sections/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/hero-sections/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       })
@@ -145,7 +147,7 @@ export default function SliderManagement() {
   const toggleStatus = async (id) => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5000/api/hero-sections/${id}/toggle-status`, {
+      const response = await fetch(`${API_BASE_URL}/api/hero-sections/${id}/toggle-status`, {
         method: 'PATCH',
         credentials: 'include'
       })

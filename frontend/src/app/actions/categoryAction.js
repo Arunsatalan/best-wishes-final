@@ -1,4 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { API_CONFIG } from '../../utils/config';
 
 // Action types
 export const FETCH_CATEGORIES_REQUEST = 'FETCH_CATEGORIES_REQUEST';
@@ -10,8 +11,7 @@ export const getCategories = createAsyncThunk(
   'categories/getCategories',
   async (_, { rejectWithValue }) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://best-wishes-final-production-e20b.up.railway.app/api';
-      const response = await fetch(`${apiUrl}/categories`);
+      const response = await fetch(`${API_CONFIG.getApiUrl()}/categories`);
       const data = await response.json();
       
       if (!response.ok) {
